@@ -1,1 +1,5 @@
-examples/
+examples/*.wav
+!examples/worker-it-small/model/.gitkeep
+examples/worker-it-small/model/
+!recordings/.gitkeep
+recordings/
