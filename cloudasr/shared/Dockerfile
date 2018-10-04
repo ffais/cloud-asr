@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-MAINTAINER Ondrej Klejch
+MAINTAINER smartcommunitylab/ffais
 
 RUN apt-get update
 RUN apt-get install -y wget build-essential python python-dev python-distribute python-pip python3 python3-dev
