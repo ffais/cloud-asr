@@ -1,4 +1,4 @@
-basedir = '/opt/models'
+basedir = '/models'
 wst_path = '%s/words.txt' % basedir
 kaldi_config = [
     '--config=%s/mfcc.conf' % basedir,

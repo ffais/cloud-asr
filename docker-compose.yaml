@@ -1,10 +1,14 @@
-version: '3'
+version: '3.7'
 networks:
    clasr-net:
         driver: overlay
-
-#volumes:
-#    recordings_saver:
+secrets:
+    mysql_root_password:
+        external: true
+    mysql_password:
+        external: true
+    connection_string:
+        external: true
 
 services:
     mysql:
@@ -12,9 +16,9 @@ services:
         ports:
             - 3306
         environment:
-            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
             - MYSQL_USER=cloudasr
-            - MYSQL_PASSWORD=cloudasr
+            - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
             - MYSQL_DATABASE=cloudasr
         volumes:
             - ./deployment/script:/docker-entrypoint-initdb.d
@@ -25,6 +29,9 @@ services:
             interval: 10s
             timeout: 60s
             retries: 5
+        secrets:
+            - mysql_root_password
+            - mysql_password
         networks:
             - clasr-net
     master:
@@ -42,13 +49,13 @@ services:
         image: smartcommunitylab/cloud-asr-monitor:latest
         ports:
             - 8001:80 #monitor_host_port
-            - 5680:5680 #monitor_status_port
+            - 5680:5680 #monitor_status_portMYSQL_USER=cloudasr
         environment:
             - MONITOR_ADDR=tcp://0.0.0.0:5680
         networks:
             - clasr-net
     recordings:
-        image: smartcommunitylab/cloud-asr-recordings:latest
+        image: smartcommunitylab/cloud-asr-recordings:secret
         ports:
             - 8002:80 #recordings_host_port    
             - 5682:5682 #recordings_saver_port
@@ -56,37 +63,44 @@ services:
             - ./recordings:/opt/app/static/data
         depends_on:
             - mysql        
-        environment:
-            - CONNECTION_STRING=mysql://cloudasr:cloudasr@mysql:3306/cloudasr?charset=utf8
+        environment:            
+            - CONNECTION_STRING_FILE=/run/secrets/connection_string
             - STORAGE_PATH=/opt/app/static/data
-            - DOMAIN=http://localhost:80
+            - DOMAIN=http://recordings:8002
+        secrets:
+            - connection_string
         networks:
             - clasr-net
     api:
-        image: smartcommunitylab/cloud-asr-api:latest
+        image: smartcommunitylab/cloud-asr-api:secret
         ports:
             - 8000:80 #api_host_port
         depends_on:
              - mysql
         environment:
-            - CONNECTION_STRING=mysql://cloudasr:cloudasr@mysql:3306/cloudasr?charset=utf8
             - MASTER_ADDR=tcp://master:5679
+            - CONNECTION_STRING=mysql://cloudasr:cloudasr@mysql:3306/cloudasr?charset=utf8
+        secrets:
+            - connection_string
         networks:
             - clasr-net
     web:
-        image: smartcommunitylab/cloud-asr-web:latest
+        image: smartcommunitylab/cloud-asr-web:secret
         ports:
             - 8003:80 #web_host_port
         depends_on:
             - mysql
         environment:
-            - CONNECTION_STRING=mysql://cloudasr:cloudasr@mysql:3306/cloudasr?charset=utf8
+            - CONNECTION_STRING_FILE=/run/secrets/connection_string 
             - API_URL=http://api:8000
             - MASTER_ADDR=tcp://master:5678
             - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
             - GOOGLE_LOGIN_CLIENT_ID=""
             - GOOGLE_LOGIN_CLIENT_SECRET=""
             - GA_TRACKING_ID=""
+            - DEBUG=DEBUG
+        secrets:
+            - connection_string
         networks:
             - clasr-net
     worker:
@@ -108,3 +122,24 @@ services:
             replicas: 1 
         networks:
             - clasr-net
+
+    worker_en:
+        image: ufaldsg/cloud-asr-worker-en-towninfo
+        ports:
+            - 5678
+        volumes:
+#            - ./cloudasr/worker:/opt/app
+            - ./init.sh:/opt/app/init.sh
+        environment:
+            - MASTER_ADDR=tcp://master:5678
+            - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
+            - MODEL=en-towninfo
+#            - HOST=192.168.56.105
+            - PORT0=5678
+        entrypoint: /opt/app/init.sh
+        deploy:
+            mode: replicated
+            replicas: 1
+        networks:
+            - clasr-net
+

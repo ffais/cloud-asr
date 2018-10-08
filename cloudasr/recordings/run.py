@@ -6,13 +6,25 @@ from lib import create_recordings_saver
 from cloudasr.schema import db
 from cloudasr.models import WorkerTypesModel, RecordingsModel
 
-
 app = Flask(__name__)
-app.config.update(
-    SECRET_KEY = '12345',
-    DEBUG = True,
-    SQLALCHEMY_DATABASE_URI = os.environ['CONNECTION_STRING']
-)
+
+if 'CONNECTION_STRING' in os.environ:
+    app.config.update(
+        SECRET_KEY = '12345',
+        DEBUG = True,
+        SQLALCHEMY_DATABASE_URI = os.environ['CONNECTION_STRING']
+    )
+elif 'CONNECTION_STRING_FILE' in os.environ:
+    scrfilepath = os.environ['CONNECTION_STRING_FILE']
+    fl = open(scrfilepath,"r")
+    app.config.update(
+        SECRET_KEY = '12345',
+        DEBUG = True,
+        SQLALCHEMY_DATABASE_URI = fl.readline().replace('\n', '')
+    )
+    fl.close()
+else:
+    print "Connection string not set"
 socketio = SocketIO(app)
 
 db.init_app(app)

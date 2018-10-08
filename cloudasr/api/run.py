@@ -9,11 +9,24 @@ from cloudasr.models import UsersModel, RecordingsModel, WorkerTypesModel
 
 
 app = Flask(__name__)
-app.config.update(
-    SECRET_KEY = '12345',
-    DEBUG = 'DEBUG' in os.environ,
-    SQLALCHEMY_DATABASE_URI = os.environ['CONNECTION_STRING']
-)
+if 'CONNECTION_STRING' in os.environ:
+    app.config.update(
+        SECRET_KEY = '12345',
+        DEBUG = 'DEBUG' in os.environ,
+        SQLALCHEMY_DATABASE_URI = os.environ['CONNECTION_STRING']
+    )
+elif 'CONNECTION_STRING_FILE' in os.environ:
+    scrfilepath = os.environ['CONNECTION_STRING_FILE']
+    fl = open(scrfilepath,"r")
+    app.config.update(
+        SECRET_KEY = '12345',
+        DEBUG = 'DEBUG' in os.environ,
+        SQLALCHEMY_DATABASE_URI = fl.readline().replace('\n', '')
+    )
+    fl.close()
+else:
+    print "No connection string set in environ"
+
 cors = CORS(app)
 socketio = SocketIO(app)
 db.init_app(app)
