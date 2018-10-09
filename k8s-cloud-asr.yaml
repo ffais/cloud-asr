@@ -1,16 +1,16 @@
 apiVersion: v1
-  kind: Service
-  metadata:
-    name: mysql
-    labels:
-      app: cloud-asr
-  spec:
-    ports:
-      - port: 3306
-    selector:
-      app: cloud-asr
-      tier: mysql
-    clusterIP: None
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: cloud-asr
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: cloud-asr
+    tier: mysql
+  clusterIP: None
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -22,7 +22,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   resources:
-    request:
+    requests:
       storage: 5Gi
 ---
 apiVersion: apps/v1
@@ -51,12 +51,12 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql_pass
+              name: mysql-pass
               key: root_password
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql_pass
+              name: mysql-pass
               key: password
         - name: MYSQL_USER
           value: "cloudasr"
@@ -68,10 +68,10 @@ spec:
         volumeMounts:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
-        volumes:
-          - name: mysql-persistent-storage
-            persistenVolumeClaim:
-              claimName: mysql-pv-claim
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
 
 
 
