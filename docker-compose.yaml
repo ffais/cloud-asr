@@ -24,6 +24,9 @@ services:
             - ./deployment/script:/docker-entrypoint-initdb.d
             - ./resources/mysql_utf8.cnf:/etc/mysql/conf.d/mysql_utf8.cnf
         command: [--ssl=0]
+        deploy:
+            placement:
+                constraints: [node.role == manager]
         healthcheck:
             test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-proot"]
             interval: 10s
@@ -39,6 +42,15 @@ services:
         ports:
             - 5678:5678 #master_to_worker_port
             - 5679:5679 #master_to_api_port
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+            resources:
+                limits:
+                    memory: 256M
+                    cpus: '0.25'
+                reservations:
+                    memory: 128M
         environment:
             - WORKER_ADDR=tcp://0.0.0.0:5678
             - API_ADDR=tcp://0.0.0.0:5679
@@ -52,6 +64,15 @@ services:
             - 5680:5680 #monitor_status_portMYSQL_USER=cloudasr
         environment:
             - MONITOR_ADDR=tcp://0.0.0.0:5680
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+            resources:
+                limits:
+                    memory: 256M
+                    cpus: '0.25'
+                reservations:
+                    memory: 128M
         networks:
             - clasr-net
     recordings:
@@ -67,6 +88,15 @@ services:
             - CONNECTION_STRING_FILE=/run/secrets/connection_string
             - STORAGE_PATH=/opt/app/static/data
             - DOMAIN=http://recordings:8002
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+            resources:
+                limits:
+                    memory: 256M
+                    cpus: '0.25'
+                reservations:
+                    memory: 128M
         secrets:
             - connection_string
         networks:
@@ -80,6 +110,15 @@ services:
         environment:
             - MASTER_ADDR=tcp://master:5679
             - CONNECTION_STRING=mysql://cloudasr:cloudasr@mysql:3306/cloudasr?charset=utf8
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+            resources:
+                limits:
+                    memory: 256M
+                    cpus: '0.25'
+                reservations:
+                    memory: 128M
         secrets:
             - connection_string
         networks:
@@ -99,6 +138,15 @@ services:
             - GOOGLE_LOGIN_CLIENT_SECRET=""
             - GA_TRACKING_ID=""
             - DEBUG=DEBUG
+        deploy:
+            placement:
+                constraints: [node.role == manager]
+            resources:
+                limits:
+                    memory: 256M
+                    cpus: '0.25'
+                reservations:
+                    memory: 128M
         secrets:
             - connection_string
         networks:
@@ -107,35 +155,40 @@ services:
         image: smartcommunitylab/cloud-asr-worker-it-small:latest 
         ports:
             - 5678
-        volumes:
+#        volumes:
 #            - ./cloudasr/worker:/opt/app
-            - ./init.sh:/opt/app/init.sh
+#            - ./init.sh:/opt/app/init.sh
         environment:
             - MASTER_ADDR=tcp://master:5678
             - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
             - MODEL=it-small
 #            - HOST=192.168.56.105
             - PORT0=5678
+        deploy:
+            placement:
+                constraints: [node.role == worker]
         entrypoint: /opt/app/init.sh
         deploy:
             mode: replicated
             replicas: 1 
         networks:
             - clasr-net
-
     worker_en:
-        image: ufaldsg/cloud-asr-worker-en-towninfo
+        image: smartcommunitylab/cloud-asr-worker-en-towninfo:latest
         ports:
             - 5678
-        volumes:
+#        volumes:
 #            - ./cloudasr/worker:/opt/app
-            - ./init.sh:/opt/app/init.sh
+#            - ./init.sh:/opt/app/init.sh
         environment:
             - MASTER_ADDR=tcp://master:5678
             - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
             - MODEL=en-towninfo
 #            - HOST=192.168.56.105
             - PORT0=5678
+        deploy:
+            placement:
+                constraints: [node.role == worker]
         entrypoint: /opt/app/init.sh
         deploy:
             mode: replicated
