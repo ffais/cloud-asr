@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: recordings
+  labels:
+    app: cloud-asr
+spec:
+  ports:
+    - port: 8002
+      targetPort: 80
+      name: recording_host_port
+    - port: 5682 
+      targetPort: 5682
+      name: recordings_saver_port
+  selector:
+    app: cloudasr
+    tier: recordings
+  clusterIP: None
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: recordings
+  labels:
+    app: cloud-asr
+spec:
+  selector:
+    matchLabels:
+      app: cloud-asr
+      tier: recordings
+  template:
+    metadata:
+      labels:
+        app: cloud-asr
+        tier: recordings
+    spec:
+      containers:
+        - image: smartcommunitylab/cloud-asr-recordings
+          name: recordings
+          ports:
+            - containerPorts: 80
+              containerPorts: 5682
+          env:
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: connection_string
+                  key: string
+            - name: STORAGE_PATH
+              value: /opt/app/static/data
+            - name: DOMAIN
+              value: http://recordings:8002
+          volumeMounts:
+            - name: recordings-data
+              persistentVolumeClaim:
+                claimName: recordings-pv-data
+
+
