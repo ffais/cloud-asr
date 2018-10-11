@@ -21,9 +21,12 @@ K8S
 ## K8S configuration
 
 ### mysql secret example
-kubectl create secret generic mysql-pass --from-literal=root_password='root' --from-literal=password='cloudasr'
+kubectl create secret generic mysql-pass --from-literal=root_password='{dbrootpass}' --from-literal=password='{dbpass}'
 
 ### mysql configMap
 kubectl create configmap mysql --from-file=deployment/script/schema.sql --from-file=resources/mysql_utf8.cnf
+
+### connection string
+kubectl create secret generic connection-string --from-literal=string='mysql://{dbuser}:{dbpass}@{mysqlhost}:3306/{dbname}?charset=utf8'
 
 
