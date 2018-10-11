@@ -68,10 +68,19 @@ spec:
         volumeMounts:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
+        - name: mysql-config
+          mountPath: /etc/mysql/conf.d/mysql_utf8.cnf
+          subPath: mysql_utf8.cnf
+        - name: mysql-config
+          mountPath: /docker-entrypoint-initdb.d/schema.sql
+          subPath: schema.sql
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
           claimName: mysql-pv-claim
+      - name: mysql-config
+        configMap:
+          name: mysql
 
 
 
