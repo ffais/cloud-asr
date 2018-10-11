@@ -18,12 +18,12 @@ If you have any questions regarding CloudASR you can reach us at our mailinglist
 K8S
 ===
 
-##K8S configuration
+## K8S configuration
 
-###mysql secret example
+### mysql secret example
 kubectl create secret generic mysql-pass --from-literal=root_password='root' --from-literal=password='cloudasr'
 
-###mysql configMap
+### mysql configMap
 kubectl create configmap mysql --from-file=deployment/script/schema.sql --from-file=resources/mysql_utf8.cnf
 
 
