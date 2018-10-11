@@ -8,15 +8,15 @@ spec:
   ports:
     - port: 5678 
       targetPort: 5678
-      name: master_to_worker
+      name: master-worker
       port: 5679 
       targetPort: 5679
-      name: master_to_api_port
+      name: master-api
   selector:
-    app: cloudasr
+    app: cloud-asr
     tier: master
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: master
@@ -37,16 +37,16 @@ spec:
         - image: smartcommunitylab/cloud-asr-master
           name: master
           ports:
-            - containerPorts: 5678
-              name: master_to_worker
-            - containerPorts: 5679
-              name: master_to_api_port
+            - containerPort: 5678
+              name: master-worker
+            - containerPort: 5679
+              name: master-api
           env:
             - name: WORKER_ADDR
-              value: tcp://0.0.0.0:5678
+              value: "tcp://0.0.0.0:5678"
             - name: API_ADDR
-              value: tcp://0.0.0.0:5679
+              value: "tcp://0.0.0.0:5679"
             - name: MONITOR_ADDR
-              value: tcp://monitor:5680
+              value: "tcp://monitor:5680"
 
 
