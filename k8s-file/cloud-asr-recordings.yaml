@@ -1,48 +1,3 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: recordings-host-port
-  labels:
-    app: cloud-asr
-spec:
-  ports:
-    - port: 80
-      targetPort: 80
-      nodePort: 30002
-      name: recordings-host
-  selector:
-    app: cloud-asr
-    tier: recordings
-  type: NodePort
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: recordings
-  labels:
-    app: cloud-asr
-spec:
-  ports:
-    - port: 5682 
-      targetPort: 5682
-      name: recordings-saver
-  selector:
-    app: cloud-asr
-    tier: recordings
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: recordings-pv-data
-  labels:
-    app: cloud-asr
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -60,6 +15,8 @@ spec:
         app: cloud-asr
         tier: recordings
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: k82
       containers:
         - image: smartcommunitylab/cloud-asr-recordings
           name: recordings
@@ -78,12 +35,4 @@ spec:
               value: "/opt/app/static/data"
             - name: DOMAIN
               value: "http://recordings:30002"
-          volumeMounts:
-            - name: recordings-data
-              mountPath: /opt/app/static/data
-      volumes:
-        - name: recordings-data
-          persistentVolumeClaim:
-                claimName: recordings-pv-data
-
 
