@@ -7,13 +7,10 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
-      nodePort: 30001
-      name: monitor-host
   selector:
     app: cloud-asr
     tier: monitor
-  type: NodePort
+  type: LoadBalancer  
 ---
 apiVersion: v1
 kind: Service
@@ -29,6 +26,7 @@ spec:
   selector:
     app: cloud-asr
     tier: monitor
+  clusterIP: None
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,6 +45,8 @@ spec:
         app: cloud-asr
         tier: monitor
     spec:
+      nodeSelector:
+        task: manager
       containers:
         - image: smartcommunitylab/cloud-asr-monitor
           name: monitor

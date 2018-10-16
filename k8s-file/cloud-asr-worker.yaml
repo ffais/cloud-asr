@@ -12,6 +12,7 @@ spec:
   selector:
     app: cloud-asr
     tier: worker
+  clusterIP: None
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -30,12 +31,16 @@ spec:
         app: cloud-asr
         tier: worker
     spec:
+      nodeSelector:
+        task: worker
       containers:
-        - image: smartcommunitylab/cloud-asr-worker-it-small
+        - image: smartcommunitylab/cloud-asr-worker-en-towninfo:latest
           name: worker
           ports:
             - containerPort: 5678
               name: worker-host
+          command: ['/bin/bash']
+          args: ['-c','while true; do python run.py; done']
           env:
             - name: CONNECTION_STRING
               valueFrom:
@@ -52,3 +57,7 @@ spec:
               value: "it-small"
             - name: PORT0
               value: "5678"
+            - name: HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP

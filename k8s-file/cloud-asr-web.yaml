@@ -7,13 +7,10 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
-      nodePort: 30003
-      name: web-host
   selector:
     app: cloud-asr
     tier: web
-  type: NodePort
+  type: LoadBalancer  
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,6 +29,8 @@ spec:
         app: cloud-asr
         tier: web
     spec:
+      nodeSelector:
+        task: manager
       containers:
         - image: smartcommunitylab/cloud-asr-web
           name: web
@@ -47,7 +46,7 @@ spec:
             - name: MASTER_ADDR
               value: "tcp://master:5678"
             - name: API_URL
-              value: "http://api:30000"
+              value: "http://api-host-port"
             - name: RECORDINGS_SAVER_ADDR
               value: "tcp://recordings:5682"
             - name: GOOGLE_LOGIN_CLIENT_ID

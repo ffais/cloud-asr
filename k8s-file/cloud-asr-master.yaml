@@ -15,6 +15,7 @@ spec:
   selector:
     app: cloud-asr
     tier: master
+  clusterIP: None
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -33,6 +34,8 @@ spec:
         app: cloud-asr
         tier: master
     spec:
+      nodeSelector:
+        task: manager
       containers:
         - image: smartcommunitylab/cloud-asr-master
           name: master

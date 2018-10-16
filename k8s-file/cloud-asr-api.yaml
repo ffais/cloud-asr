@@ -7,13 +7,10 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 80
-      nodePort: 30000
-      name: api-host
   selector:
     app: cloud-asr
     tier: api
-  type: NodePort
+  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,6 +29,8 @@ spec:
         app: cloud-asr
         tier: api
     spec:
+      nodeSelector:
+        task: manager
       containers:
         - image: smartcommunitylab/cloud-asr-api
           name: api
