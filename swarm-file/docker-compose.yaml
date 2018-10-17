@@ -26,7 +26,7 @@ services:
         command: [--ssl=0]
         deploy:
             placement:
-                constraints: [node.labels.task= manager]
+                constraints: [node.labels.task == manager]
         healthcheck:
             test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-proot"]
             interval: 10s
