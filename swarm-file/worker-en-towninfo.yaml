@@ -1,0 +1,24 @@
+version: '3.7'
+networks:
+   clasr-net:
+    driver: overlay
+    external: true
+
+services:
+  worker:
+    image: smartcommunitylab/cloud-asr-worker-en-towninfo:latest
+    ports:
+      - 5678
+    environment:
+      - MASTER_ADDR=tcp://master:5678
+      - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
+      - MODEL=en-towninfo
+      - PORT0=5678
+    deploy:
+      placement:
+        constraints: [node.labels.model == en-towninfo]
+      mode: replicated
+      replicas: 1
+    networks:
+      - clasr-net
+
