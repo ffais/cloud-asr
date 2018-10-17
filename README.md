@@ -21,7 +21,9 @@ SWARM
 
 ### mysql secret example
 echo "{dbrootpass}" | docker secret create mysql_root_password -
+
 echo "{dbpass}" | docker secret create mysql_password -
+
 echo "{mysql://{dbuser}:{dbpass}@{mysqlhost}:3306/{dbname}?charset=utf8}" | docker secret create connection_string -
 
 
