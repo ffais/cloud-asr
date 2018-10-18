@@ -98,7 +98,7 @@ services:
         environment:            
             - CONNECTION_STRING_FILE=/run/secrets/connection_string
             - STORAGE_PATH=/opt/app/static/data
-            - DOMAIN=http://recordings:8002
+            - DOMAIN=http://cloudasr.westeurope.cloudapp.azure.com/recordings:8002
         deploy:
             placement:
                 constraints: [node.labels.task == manager]
@@ -142,7 +142,7 @@ services:
             - mysql
         environment:
             - CONNECTION_STRING_FILE=/run/secrets/connection_string 
-            - API_URL=http://api:8000
+            - API_URL=http://cloudasr.westeurope.cloudapp.azure.com:8000
             - MASTER_ADDR=tcp://master:5678
             - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
             - GOOGLE_LOGIN_CLIENT_ID=""
