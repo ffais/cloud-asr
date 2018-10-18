@@ -26,10 +26,10 @@ do
             sleep 1m
           done
 	        echo "Joined as worker"
-          ssh -i ~/Documenti/azure dev@23.97.228.138 cd cloud-asr && git pull origin secret
+          ssh -i ~/Documenti/azure dev@23.97.228.138 'cd ~/cloud-asr; git pull origin secret'
           ssh -i ~/Documenti/azure dev@23.97.228.138 docker node update --label-add model=$mod $worker
           workerfile="$worker.yaml"
-          ssh -i ~/Documenti/azure dev@23.97.228.138 cd cloud-asr/swarm-file && docker stack deploy -c $workerfile $worker
+          ssh -i ~/Documenti/azure dev@23.97.228.138 "cd ~/cloud-asr/swarm-file; docker stack deploy -c $workerfile $worker"
         fi 
     fi
 done

@@ -1,7 +1,6 @@
 version: '3.7'
 networks:
-   clasr-net:
-    driver: overlay
+  asr_manager_clasr-net:
     external: true
 
 services:
