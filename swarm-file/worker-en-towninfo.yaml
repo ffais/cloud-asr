@@ -19,5 +19,5 @@ services:
       mode: replicated
       replicas: 1
     networks:
-      - clasr-net
+      - asr_manager_clasr-net
 
