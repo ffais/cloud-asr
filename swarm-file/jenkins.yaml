@@ -2,6 +2,9 @@ version: "3"
 services:
   master:
     image: jenkins/jenkins:lts-alpine
+    deploy:
+            placement:
+                constraints: [node.labels.task == manager]
     ports:
      - '8080:8080'
      - '50000:50000'

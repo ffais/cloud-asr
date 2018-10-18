@@ -1,6 +1,6 @@
 version: '3.7'
 networks:
-  asr_manager_clasr-net:
+  asr-manager_clasr-net:
     external: true
 
 services:
@@ -13,11 +13,13 @@ services:
       - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
       - MODEL=en-towninfo
       - PORT0=5678
+    entrypoint: 
+      - /opt/app/init.sh
     deploy:
       placement:
         constraints: [node.labels.model == en-towninfo]
       mode: replicated
       replicas: 1
     networks:
-      - asr_manager_clasr-net
+      - asr-manager_clasr-net
 
