@@ -12,6 +12,8 @@ do
         if [ $? -eq 0 ]        
         then
           echo "VM exist" 
+          vmsize=$(sed -r -n 's/.+-\s+size:\s+\"([a-zA-Z0-9_\-]+)\"/\1/p' $f)
+          echo $vmsize
         else
           echo "VM non found"
           

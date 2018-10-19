@@ -15,6 +15,8 @@ services:
       - PORT0=5678
     entrypoint: 
       - /opt/app/init.sh
+    labels:
+      - size: "Standard_B2ms"
     deploy:
       placement:
         constraints: [node.labels.model == it-small]
