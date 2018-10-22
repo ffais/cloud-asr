@@ -15,7 +15,8 @@ do
         else
           echo "VM non found"
           vmsize=$(sed -r -n 's/.+size:\s+\"([a-zA-Z0-9_\-]+)\"/\1/p' $f)
-          ssh -i /var/jenkins_home/azure -o "StrictHostKeyChecking no" dev@10.0.0.4  "az vm create --resource-group cloud-asr-swarm --name $worker --location westeurope --size $vmsize --admin-username dev --ssh-key-value @/home/dev/azure.pub --storage-sku Standard_LRS --vnet-name cloud-asr-swarm-vnet --subnet default --public-ip-address \"\" --image Canonical:UbuntuServer:18.04-LTS:latest --custom-data /home/dev/cloud-init.txt"
+          ssh -i /var/jenkins_home/azure -o "StrictHostKeyChecking no" dev@10.0.0.4  "az vm create --resource-group cloud-asr-swarm --name $worker --location westeurope --size $vmsize --admin-username
+          dev --ssh-key-value @/home/dev/azure.pub --storage-sku Standard_LRS --vnet-name cloud-asr-swarm-vnet --subnet default --public-ip-address \"\" --tags model=$worker --image Canonical:UbuntuServer:18.04-LTS:latest --custom-data /home/dev/cloud-init.txt"
 	
 	      until [[ $(ssh -i /var/jenkins_home/azure dev@10.0.0.4 docker node ls --format "{{.Hostname}}" --filter name=$worker) = $worker ]]; do
             echo "waiting 1m"

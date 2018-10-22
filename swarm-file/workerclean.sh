@@ -17,7 +17,7 @@ do
       fi
     done  
     if [ "$found" == "0" ]; then
-      echo "delete this vm"
+      az resource delete --id $(az resource list --tag model=$VM --query "[].id" -otsv)
     fi
   else
     echo "is not a worker"
