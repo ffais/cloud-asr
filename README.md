@@ -15,6 +15,18 @@ The CloudASR platform is developed by the Dialogue Systems Group at [UFAL](http:
 
 If you have any questions regarding CloudASR you can reach us at our mailinglist: [cloudasr@googlegroups.com](cloudasr@googlegroups.com).
 
+SWARM
+=====
+## swarm configuration
+
+### mysql secret example
+echo "{dbrootpass}" | docker secret create mysql_root_password -
+
+echo "{dbpass}" | docker secret create mysql_password -
+
+echo "{mysql://{dbuser}:{dbpass}@{mysqlhost}:3306/{dbname}?charset=utf8}" | docker secret create connection_string -
+
+
 K8S
 ===
 

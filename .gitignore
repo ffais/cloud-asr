@@ -3,3 +3,6 @@ examples/*.wav
 examples/worker-it-small/model/
 !recordings/.gitkeep
 recordings/
+*.key
+*.crt
+*.pem

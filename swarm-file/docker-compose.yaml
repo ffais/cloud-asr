@@ -2,6 +2,7 @@ version: '3.7'
 networks:
    clasr-net:
         driver: overlay
+        attachable: true
 secrets:
     mysql_root_password:
         external: true
@@ -21,12 +22,12 @@ services:
             - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
             - MYSQL_DATABASE=cloudasr
         volumes:
-            - ./deployment/script:/docker-entrypoint-initdb.d
-            - ./resources/mysql_utf8.cnf:/etc/mysql/conf.d/mysql_utf8.cnf
+            - ../deployment/script:/docker-entrypoint-initdb.d
+            - ../resources/mysql_utf8.cnf:/etc/mysql/conf.d/mysql_utf8.cnf
         command: [--ssl=0]
         deploy:
             placement:
-                constraints: [node.labels.task= manager]
+                constraints: [node.labels.task == manager]
         healthcheck:
             test: ["CMD", "mysqladmin" ,"ping", "-uroot", "-proot"]
             interval: 10s
@@ -60,7 +61,7 @@ services:
     monitor:
         image: smartcommunitylab/cloud-asr-monitor:latest
         ports:
-            - 8001:80 #monitor_host_port
+            - 80 #monitor_host_port
             - 5680:5680 #monitor_status_portMYSQL_USER=cloudasr
         environment:
             - MONITOR_ADDR=tcp://0.0.0.0:5680
@@ -78,16 +79,16 @@ services:
     recordings:
         image: smartcommunitylab/cloud-asr-recordings:secret
         ports:
-            - 8002:80 #recordings_host_port    
+            - 80 #recordings_host_port    
             - 5682:5682 #recordings_saver_port
         volumes:
-            - ./recordings:/opt/app/static/data
+            - ../recordings:/opt/app/static/data
         depends_on:
             - mysql        
         environment:            
             - CONNECTION_STRING_FILE=/run/secrets/connection_string
             - STORAGE_PATH=/opt/app/static/data
-            - DOMAIN=http://recordings:8002
+            - DOMAIN=https://cloudasr.smartcommunitylab.it:8002
         deploy:
             placement:
                 constraints: [node.labels.task == manager]
@@ -104,12 +105,12 @@ services:
     api:
         image: smartcommunitylab/cloud-asr-api:secret
         ports:
-            - 8000:80 #api_host_port
+            - 80 #api_host_port
         depends_on:
              - mysql
         environment:
             - MASTER_ADDR=tcp://master:5679
-            - CONNECTION_STRING=mysql://cloudasr:cloudasr@mysql:3306/cloudasr?charset=utf8
+            - CONNECTION_STRING_FILE=/run/secrets/connection_string            
         deploy:
             placement:
                 constraints: [node.labels.task == manager]
@@ -126,12 +127,12 @@ services:
     web:
         image: smartcommunitylab/cloud-asr-web:secret
         ports:
-            - 8003:80 #web_host_port
+            - 80 #web_host_port
         depends_on:
             - mysql
         environment:
             - CONNECTION_STRING_FILE=/run/secrets/connection_string 
-            - API_URL=http://api:8000
+            - API_URL=https://cloudasr.smartcommunitylab.it:8000
             - MASTER_ADDR=tcp://master:5678
             - RECORDINGS_SAVER_ADDR=tcp://recordings:5682
             - GOOGLE_LOGIN_CLIENT_ID=""
